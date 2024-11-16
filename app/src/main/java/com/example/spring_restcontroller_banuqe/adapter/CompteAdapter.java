@@ -5,11 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.spring_restcontroller_banuqe.R;
 import com.example.spring_restcontroller_banuqe.beans.Compte;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteViewHolder> {
@@ -20,38 +21,49 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
         this.comptes = comptes;
     }
 
-    @NonNull
     @Override
-    public CompteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_2, parent, false);
+    public CompteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_compte, parent, false);
         return new CompteViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CompteViewHolder holder, int position) {
+    public void onBindViewHolder(CompteViewHolder holder, int position) {
         Compte compte = comptes.get(position);
-        holder.text1.setText("Type: " + compte.getTypeCompte());
-        holder.text2.setText("Solde: " + compte.getSolde());
+        holder.soldeText.setText("Solde: " + compte.getSolde());
+        // Vérifier si le type est null et assigner une valeur par défaut
+        String type = (compte.getType() != null) ? compte.getType() : "Type non défini";
+        holder.typeText.setText("Type: " + type);
+        // Formater la date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        holder.dateText.setText("Date de création: " + dateFormat.format(compte.getDateCreation()));
     }
+
 
     @Override
     public int getItemCount() {
-        return comptes != null ? comptes.size() : 0;
+        return comptes.size();
     }
 
     public void setComptes(List<Compte> comptes) {
         this.comptes = comptes;
         notifyDataSetChanged();
     }
+    public void addCompte(Compte compte) {
+        this.comptes.add(compte);
+        notifyItemInserted(comptes.size() - 1);  // Notifie l'ajout d'un nouvel élément
+    }
 
-    static class CompteViewHolder extends RecyclerView.ViewHolder {
-        TextView text1, text2;
 
-        public CompteViewHolder(@NonNull View itemView) {
+    public static class CompteViewHolder extends RecyclerView.ViewHolder {
+
+        TextView soldeText, typeText, dateText;
+
+        public CompteViewHolder(View itemView) {
             super(itemView);
-            text1 = itemView.findViewById(android.R.id.text1);
-            text2 = itemView.findViewById(android.R.id.text2);
+            soldeText = itemView.findViewById(R.id.soldeText);
+            typeText = itemView.findViewById(R.id.typeText);
+            dateText = itemView.findViewById(R.id.dateText);  // Ajoutez un TextView pour la date
         }
     }
 }

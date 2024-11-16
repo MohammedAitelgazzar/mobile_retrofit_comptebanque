@@ -1,28 +1,23 @@
 package com.example.spring_restcontroller_banuqe.beans;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 public class Compte {
-    private Long id;
+    private Long idLong;
     private double solde;
     private Date dateCreation;
-    private TypeCompte typeCompte;
 
-    // Constructor
-    public Compte(Long id, double solde, Date dateCreation, TypeCompte typeCompte) {
-        this.id = id;
-        this.solde = solde;
-        this.dateCreation = dateCreation;
-        this.typeCompte = typeCompte;
+    @SerializedName("typeCompte") // Associer le champ JSON "typeCompte" avec le champ Java "type"
+    private String type;
+
+    public Long getIdLong() {
+        return idLong;
     }
 
-    // Getters et Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdLong(Long idLong) {
+        this.idLong = idLong;
     }
 
     public double getSolde() {
@@ -41,11 +36,23 @@ public class Compte {
         this.dateCreation = dateCreation;
     }
 
-    public TypeCompte getTypeCompte() {
-        return typeCompte;
+    public String getType() {
+        return type;
     }
 
-    public void setTypeCompte(TypeCompte typeCompte) {
-        this.typeCompte = typeCompte;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "Compte{" +
+                "id=" + idLong +
+                ", solde=" + solde +
+                ", dateCreation=" + dateCreation +
+                ", type='" + type + '\'' +
+                '}';
     }
 }
+
+
