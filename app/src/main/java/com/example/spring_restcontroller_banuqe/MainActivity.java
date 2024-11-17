@@ -57,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
         compteAdapter = new CompteAdapter(new ArrayList<>());
         recyclerView.setAdapter(compteAdapter);
 
+        compteAdapter.setOnDeleteClickListener(position -> {
+            Compte compte = compteAdapter.getComptes().get(position);
+            deleteCompte(compte.getId(), position);
+        });
+
+
         // Initialisation du Spinner avec les types de comptes
         List<String> types = new ArrayList<>();
         types.add("EPARGNE");
@@ -82,6 +88,29 @@ public class MainActivity extends AppCompatActivity {
         } else {
             formCreateCompte.setVisibility(View.GONE);
         }
+    }
+
+
+    private void deleteCompte(Long id, int position) {
+        Call<Void> call = RetrofitClient.getApi().deleteCompte(id);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Compte supprimé avec succès", Toast.LENGTH_SHORT).show();
+                    compteAdapter.removeCompte(position);
+                } else {
+                    Toast.makeText(MainActivity.this, "Échec de la suppression du compte", Toast.LENGTH_SHORT).show();
+                    Log.e("DeleteCompte", "Erreur: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur réseau: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("DeleteCompte", "Erreur: ", t);
+            }
+        });
     }
 
     // Méthode pour récupérer tous les comptes
@@ -126,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         newCompte.setType(type);
 
         // Ajouter la date de création actuelle
-      //  newCompte.setDateCreation(new Date());
+       // newCompte.setDateCreation(new Date());
 
         // Envoyer la requête POST à l'API
         Call<Compte> call = RetrofitClient.getApi().createCompte(newCompte);
@@ -145,50 +174,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Erreur lors de la création du compte", Toast.LENGTH_SHORT).show();
                 }
             }
-            private void updateCompte(Compte compte) {
-                ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-                Call<Compte> call = apiService.updateCompte(compte.getIdLong(), compte);
-
-                call.enqueue(new Callback<Compte>() {
-                    @Override
-                    public void onResponse(Call<Compte> call, Response<Compte> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Compte modifié avec succès", Toast.LENGTH_SHORT).show();
-                            getAllComptes(); // Actualiser la liste des comptes
-                        } else {
-                            Toast.makeText(MainActivity.this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    private void deleteCompte(Long compteId) {
-                        ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-                        Call<Void> call = apiService.deleteCompte(compteId);
-
-                        call.enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                if (response.isSuccessful()) {
-                                    Toast.makeText(MainActivity.this, "Compte supprimé avec succès", Toast.LENGTH_SHORT).show();
-                                    getAllComptes(); // Actualiser la liste des comptes
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Erreur lors de la suppression", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Toast.makeText(MainActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-
-                    @Override
-                    public void onFailure(Call<Compte> call, Throwable t) {
-                        Toast.makeText(MainActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
 
             @Override
             public void onFailure(Call<Compte> call, Throwable t) {

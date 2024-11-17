@@ -26,5 +26,5 @@ public interface ApiService {
     Call<Compte> updateCompte(@Path("id") Long id, @Body Compte compte);
 
     @DELETE("banque/comptes/{id}")
-    Call<Void> deleteCompte(@Path("id") Long id);
+     Call<Void> deleteCompte(@Path("id") Long id);
 }

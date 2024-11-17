@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
 public class Compte {
-    private Long idLong;
+    private Long id;
     private double solde;
     /*@JsonFormat(pattern = "MMM dd, yyyy hh:mm:ss a")
     private Date dateCreation;
@@ -16,12 +16,12 @@ public class Compte {
     @SerializedName("typeCompte") // Associer le champ JSON "typeCompte" avec le champ Java "type"
     private String type;
 
-    public Long getIdLong() {
-        return idLong;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdLong(Long idLong) {
-        this.idLong = idLong;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public double getSolde() {
@@ -53,7 +53,7 @@ public class Compte {
     @Override
     public String toString() {
         return "Compte{" +
-                "id=" + idLong +
+                "id=" + id +
                 ", solde=" + solde +
                // ", dateCreation=" + dateCreation +
                 ", type='" + type + '\'' +
