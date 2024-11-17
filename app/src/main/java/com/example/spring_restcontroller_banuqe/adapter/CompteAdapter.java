@@ -12,7 +12,6 @@ import com.example.spring_restcontroller_banuqe.beans.Compte;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
-
 public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteViewHolder> {
 
     private List<Compte> comptes;
@@ -31,14 +30,15 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
     public void onBindViewHolder(CompteViewHolder holder, int position) {
         Compte compte = comptes.get(position);
         holder.soldeText.setText("Solde: " + compte.getSolde());
+
         // Vérifier si le type est null et assigner une valeur par défaut
         String type = (compte.getType() != null) ? compte.getType() : "Type non défini";
         holder.typeText.setText("Type: " + type);
+
         // Formater la date
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        holder.dateText.setText("Date de création: " + dateFormat.format(compte.getDateCreation()));
+       // holder.dateText.setText("Date de création: " + dateFormat.format(compte.getDateCreation()));
     }
-
 
     @Override
     public int getItemCount() {
@@ -49,9 +49,11 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
         this.comptes = comptes;
         notifyDataSetChanged();
     }
+
+    // Méthode pour ajouter un compte à la liste et mettre à jour l'adaptateur
     public void addCompte(Compte compte) {
-        this.comptes.add(compte);
-        notifyItemInserted(comptes.size() - 1);  // Notifie l'ajout d'un nouvel élément
+        comptes.add(compte);
+        notifyItemInserted(comptes.size() - 1);  // Insère l'élément à la fin
     }
 
 
@@ -63,7 +65,7 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
             super(itemView);
             soldeText = itemView.findViewById(R.id.soldeText);
             typeText = itemView.findViewById(R.id.typeText);
-            dateText = itemView.findViewById(R.id.dateText);  // Ajoutez un TextView pour la date
+            //dateText = itemView.findViewById(R.id.dateText);
         }
     }
 }

@@ -1,56 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- EditText pour le solde -->
-    <EditText
-        android:id="@+id/soldeInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Solde"
-        android:inputType="numberDecimal"
-        android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Spinner pour le type de compte -->
-    <Spinner
-        android:id="@+id/typeInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Type de compte"
-        android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/soldeInput" />
-
-    <!-- Bouton pour créer un compte -->
+    <!-- Bouton pour afficher le formulaire de création de compte -->
     <Button
-        android:id="@+id/btnCreate"
-        android:layout_width="0dp"
+        android:id="@+id/btnAddCompte"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Créer un compte"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Ajouter un compte"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/typeInput"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- Formulaire de création de compte (initialement caché) -->
+    <LinearLayout
+        android:id="@+id/formCreateCompte"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnAddCompte">
+
+        <EditText
+            android:id="@+id/soldeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Solde"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <Spinner
+            android:id="@+id/typeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Créer un compte" />
+
+    </LinearLayout>
 
     <!-- RecyclerView pour afficher la liste des comptes -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCreate"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintTop_toBottomOf="@id/formCreateCompte" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

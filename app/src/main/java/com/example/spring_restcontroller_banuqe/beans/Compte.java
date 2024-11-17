@@ -1,5 +1,6 @@
 package com.example.spring_restcontroller_banuqe.beans;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -7,8 +8,11 @@ import java.util.Date;
 public class Compte {
     private Long idLong;
     private double solde;
+    /*@JsonFormat(pattern = "MMM dd, yyyy hh:mm:ss a")
     private Date dateCreation;
 
+
+     */
     @SerializedName("typeCompte") // Associer le champ JSON "typeCompte" avec le champ Java "type"
     private String type;
 
@@ -28,7 +32,7 @@ public class Compte {
         this.solde = solde;
     }
 
-    public Date getDateCreation() {
+  /*  public Date getDateCreation() {
         return dateCreation;
     }
 
@@ -36,6 +40,8 @@ public class Compte {
         this.dateCreation = dateCreation;
     }
 
+
+   */
     public String getType() {
         return type;
     }
@@ -49,7 +55,7 @@ public class Compte {
         return "Compte{" +
                 "id=" + idLong +
                 ", solde=" + solde +
-                ", dateCreation=" + dateCreation +
+               // ", dateCreation=" + dateCreation +
                 ", type='" + type + '\'' +
                 '}';
     }
