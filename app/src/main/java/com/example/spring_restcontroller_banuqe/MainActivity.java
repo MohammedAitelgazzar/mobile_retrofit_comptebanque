@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter<String> typeAdapter;
 
+    private Long compteIdToUpdate = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +62,20 @@ public class MainActivity extends AppCompatActivity {
             Compte compte = compteAdapter.getComptes().get(position);
             deleteCompte(compte.getId(), position);
         });
+        compteAdapter.setOnEditClickListener(compte -> {
+            // Stocke l'ID du compte à modifier
+            compteIdToUpdate = compte.getId();
 
+            // Affiche le formulaire
+            formCreateCompte.setVisibility(View.VISIBLE);
+
+            // Remplit les champs avec les valeurs actuelles
+            soldeInput.setText(String.valueOf(compte.getSolde()));
+            typeInput.setSelection(typeAdapter.getPosition(compte.getType()));
+
+            // Change le texte du bouton
+            btnCreate.setText("Modifier Compte");
+        });
 
         // Initialisation du Spinner avec les types de comptes
         List<String> types = new ArrayList<>();
@@ -75,8 +89,14 @@ public class MainActivity extends AppCompatActivity {
         btnAddCompte.setOnClickListener(v -> toggleForm());
 
         // Ajouter un écouteur au bouton pour créer un compte
-        btnCreate.setOnClickListener(v -> createCompte());
-
+       // btnCreate.setOnClickListener(v -> createCompte());
+        btnCreate.setOnClickListener(v -> {
+            if (compteIdToUpdate != null) {
+                updateCompte(compteIdToUpdate);
+            } else {
+                createCompte();
+            }
+        });
         // Récupérer tous les comptes
         getAllComptes();
     }
@@ -84,13 +104,92 @@ public class MainActivity extends AppCompatActivity {
     // Méthode pour afficher/masquer le formulaire de création de compte
     private void toggleForm() {
         if (formCreateCompte.getVisibility() == View.GONE) {
+            resetForm();
             formCreateCompte.setVisibility(View.VISIBLE);
         } else {
             formCreateCompte.setVisibility(View.GONE);
         }
     }
 
+    private void updateCompte(Long id) {
+        String solde = soldeInput.getText().toString();
+        String type = typeInput.getSelectedItem().toString();
 
+        if (solde.isEmpty()) {
+            Toast.makeText(this, "Le solde est obligatoire", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Compte updatedCompte = new Compte();
+        updatedCompte.setSolde(Double.parseDouble(solde));
+        updatedCompte.setType(type);
+
+        Call<Compte> call = RetrofitClient.getApi().updateCompte(id, updatedCompte);
+        call.enqueue(new Callback<Compte>() {
+            @Override
+            public void onResponse(Call<Compte> call, Response<Compte> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Compte modifié avec succès", Toast.LENGTH_SHORT).show();
+                    // Réinitialiser le formulaire
+                    resetForm();
+                    // Rafraîchir la liste
+                    getAllComptes();
+                } else {
+                    Toast.makeText(MainActivity.this, "Erreur lors de la modification du compte", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Compte> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur : " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void resetForm() {
+        compteIdToUpdate = null;
+        soldeInput.setText("");
+        typeInput.setSelection(0);
+        btnCreate.setText("Créer un compte");
+        formCreateCompte.setVisibility(View.GONE);
+    }
+
+
+    /*
+    private void updateCompte(Long id) {
+        String solde = soldeInput.getText().toString();
+        String type = typeInput.getSelectedItem().toString();
+
+        if (solde.isEmpty()) {
+            Toast.makeText(this, "Le solde est obligatoire", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Compte updatedCompte = new Compte();
+        updatedCompte.setSolde(Double.parseDouble(solde));
+        updatedCompte.setType(type);
+
+        Call<Compte> call = RetrofitClient.getApi().updateCompte(id, updatedCompte);
+        call.enqueue(new Callback<Compte>() {
+            @Override
+            public void onResponse(Call<Compte> call, Response<Compte> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Compte modifié avec succès", Toast.LENGTH_SHORT).show();
+                    getAllComptes(); // Rafraîchit la liste des comptes
+                    toggleForm(); // Masque le formulaire après la modification
+                } else {
+                    Toast.makeText(MainActivity.this, "Erreur lors de la modification du compte", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Compte> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur : " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+*/
     private void deleteCompte(Long id, int position) {
         Call<Void> call = RetrofitClient.getApi().deleteCompte(id);
         call.enqueue(new Callback<Void>() {

@@ -22,10 +22,10 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
     public CompteAdapter(List<Compte> comptes) {
         this.comptes = comptes;
     }
+
     public List<Compte> getComptes() {
         return comptes;
     }
-
 
     @NonNull
     @Override
@@ -38,18 +38,35 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
     public void onBindViewHolder(@NonNull CompteViewHolder holder, int position) {
         Compte compte = comptes.get(position);
         holder.soldeText.setText("Solde: " + compte.getSolde());
-
-        // Vérifier si le type est null et assigner une valeur par défaut
         String type = (compte.getType() != null) ? compte.getType() : "Type non défini";
         holder.typeText.setText("Type: " + type);
 
-        // Ajouter un écouteur de clic au bouton de suppression
         holder.deleteButton.setOnClickListener(v -> {
             if (onDeleteClickListener != null) {
                 onDeleteClickListener.onDeleteClick(position);
             }
         });
+
+        // Lorsque le bouton "Modifier" est cliqué
+        holder.editButton.setOnClickListener(v -> {
+            if (onEditClickListener != null) {
+                onEditClickListener.onEditClick(compte);
+            }
+        });
     }
+
+
+    private OnEditClickListener onEditClickListener;
+
+    public void setOnEditClickListener(OnEditClickListener listener) {
+        this.onEditClickListener = listener;
+    }
+
+    public interface OnEditClickListener {
+        void onEditClick(Compte compte);
+    }
+
+
 
     @Override
     public int getItemCount() {
@@ -83,13 +100,14 @@ public class CompteAdapter extends RecyclerView.Adapter<CompteAdapter.CompteView
 
     public static class CompteViewHolder extends RecyclerView.ViewHolder {
         TextView soldeText, typeText;
-        Button deleteButton;
+        Button deleteButton, editButton;
 
         public CompteViewHolder(View itemView) {
             super(itemView);
             soldeText = itemView.findViewById(R.id.soldeText);
             typeText = itemView.findViewById(R.id.typeText);
             deleteButton = itemView.findViewById(R.id.deleteButton);
+            editButton = itemView.findViewById(R.id.editButton);
         }
     }
 }
