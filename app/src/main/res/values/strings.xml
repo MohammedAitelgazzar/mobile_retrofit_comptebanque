@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Spring_restcontroller_Banuqe</string>
+    <string-array name="jsonXmlOptions">
+        <item>JSON</item>
+        <item>XML</item>
+    </string-array>
 </resources>

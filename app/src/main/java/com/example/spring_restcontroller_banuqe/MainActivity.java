@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,24 +21,25 @@ import com.example.spring_restcontroller_banuqe.beans.Compte;
 import com.example.spring_restcontroller_banuqe.config.RetrofitClient;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
     private Button btnCreate;
     private Button btnAddCompte;
     private EditText soldeInput;
     private Spinner typeInput;
     private RecyclerView recyclerView;
-    private LinearLayout formCreateCompte; // Conteneur du formulaire de création de compte
+    private LinearLayout formCreateCompte;
     private CompteAdapter compteAdapter;
 
     private ArrayAdapter<String> typeAdapter;
 
     private Long compteIdToUpdate = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,30 @@ public class MainActivity extends AppCompatActivity {
         btnAddCompte = findViewById(R.id.btnAddCompte);
         formCreateCompte = findViewById(R.id.formCreateCompte);
         recyclerView = findViewById(R.id.recyclerView);
+        Spinner spinnerType = findViewById(R.id.spinnerType);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.jsonXmlOptions, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerType.setAdapter(adapter);
+        spinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                boolean useJson = position == 0;  // Position 0 -> JSON, Position 1 -> XML
+                updateApiService(useJson);  // Méthode pour mettre à jour le service API
+            }
+
+            private void updateApiService(boolean useJson) {
+                // Exemple d'utilisation du service API en fonction du type sélectionné
+                ApiService apiService = RetrofitClient.getApi(useJson); // Choisit l'API en fonction du type
+
+                // Par exemple, vous pouvez appeler `getAllComptes()` ici avec l'API configurée.
+                getAllComptes(useJson); // Passer le booléen au lieu de l'objet ApiService
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Optional: Handle case when nothing is selected
+            }
+        });
 
         // Configuration du RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -62,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             Compte compte = compteAdapter.getComptes().get(position);
             deleteCompte(compte.getId(), position);
         });
+
         compteAdapter.setOnEditClickListener(compte -> {
             // Stocke l'ID du compte à modifier
             compteIdToUpdate = compte.getId();
@@ -89,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         btnAddCompte.setOnClickListener(v -> toggleForm());
 
         // Ajouter un écouteur au bouton pour créer un compte
-       // btnCreate.setOnClickListener(v -> createCompte());
         btnCreate.setOnClickListener(v -> {
             if (compteIdToUpdate != null) {
                 updateCompte(compteIdToUpdate);
@@ -97,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 createCompte();
             }
         });
+
         // Récupérer tous les comptes
-        getAllComptes();
+        getAllComptes(true); // Par défaut, on utilise JSON
     }
 
     // Méthode pour afficher/masquer le formulaire de création de compte
@@ -124,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         updatedCompte.setSolde(Double.parseDouble(solde));
         updatedCompte.setType(type);
 
-        Call<Compte> call = RetrofitClient.getApi().updateCompte(id, updatedCompte);
+        Call<Compte> call = RetrofitClient.getApi(true).updateCompte(id, updatedCompte);
         call.enqueue(new Callback<Compte>() {
             @Override
             public void onResponse(Call<Compte> call, Response<Compte> response) {
@@ -133,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     // Réinitialiser le formulaire
                     resetForm();
                     // Rafraîchir la liste
-                    getAllComptes();
+                    getAllComptes(true);
                 } else {
                     Toast.makeText(MainActivity.this, "Erreur lors de la modification du compte", Toast.LENGTH_SHORT).show();
                 }
@@ -154,44 +181,8 @@ public class MainActivity extends AppCompatActivity {
         formCreateCompte.setVisibility(View.GONE);
     }
 
-
-    /*
-    private void updateCompte(Long id) {
-        String solde = soldeInput.getText().toString();
-        String type = typeInput.getSelectedItem().toString();
-
-        if (solde.isEmpty()) {
-            Toast.makeText(this, "Le solde est obligatoire", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Compte updatedCompte = new Compte();
-        updatedCompte.setSolde(Double.parseDouble(solde));
-        updatedCompte.setType(type);
-
-        Call<Compte> call = RetrofitClient.getApi().updateCompte(id, updatedCompte);
-        call.enqueue(new Callback<Compte>() {
-            @Override
-            public void onResponse(Call<Compte> call, Response<Compte> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Compte modifié avec succès", Toast.LENGTH_SHORT).show();
-                    getAllComptes(); // Rafraîchit la liste des comptes
-                    toggleForm(); // Masque le formulaire après la modification
-                } else {
-                    Toast.makeText(MainActivity.this, "Erreur lors de la modification du compte", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Compte> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Erreur : " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-*/
     private void deleteCompte(Long id, int position) {
-        Call<Void> call = RetrofitClient.getApi().deleteCompte(id);
+        Call<Void> call = RetrofitClient.getApi(true).deleteCompte(id);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -213,8 +204,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Méthode pour récupérer tous les comptes
-    private void getAllComptes() {
-        Call<List<Compte>> call = RetrofitClient.getApi().getAllComptes();
+    private void getAllComptes(boolean useJson) {
+        ApiService apiService = RetrofitClient.getApi(useJson);
+        Call<List<Compte>> call = apiService.getAllComptes();
         call.enqueue(new Callback<List<Compte>>() {
             @Override
             public void onResponse(Call<List<Compte>> call, Response<List<Compte>> response) {
@@ -243,33 +235,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (type.isEmpty()) {
-            Toast.makeText(this, "Le type de compte est obligatoire", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Créer un objet Compte avec les données saisies
+        // Créer un objet compte
         Compte newCompte = new Compte();
         newCompte.setSolde(Double.parseDouble(solde));
         newCompte.setType(type);
 
-        // Ajouter la date de création actuelle
-       // newCompte.setDateCreation(new Date());
-
-        // Envoyer la requête POST à l'API
-        Call<Compte> call = RetrofitClient.getApi().createCompte(newCompte);
+        // Appeler l'API pour créer le compte
+        Call<Compte> call = RetrofitClient.getApi(true).createCompte(newCompte);
         call.enqueue(new Callback<Compte>() {
             @Override
             public void onResponse(Call<Compte> call, Response<Compte> response) {
                 if (response.isSuccessful()) {
-                    // Afficher un message de succès
                     Toast.makeText(MainActivity.this, "Compte créé avec succès", Toast.LENGTH_SHORT).show();
-                    // Ajouter le nouveau compte à la liste et rafraîchir le RecyclerView
-                    compteAdapter.addCompte(response.body());
-                    // Masquer le formulaire après la création
-                    formCreateCompte.setVisibility(View.GONE);
+                    resetForm();  // Réinitialiser le formulaire
+                    getAllComptes(true);  // Rafraîchir la liste des comptes
                 } else {
-                    // Gérer l'échec de la création
                     Toast.makeText(MainActivity.this, "Erreur lors de la création du compte", Toast.LENGTH_SHORT).show();
                 }
             }
